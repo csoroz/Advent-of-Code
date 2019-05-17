@@ -26,7 +26,6 @@ slice ps = U.accumArray (+) 0 ((0,0),m) (concatMap g ps)
         m = both maximum (f ps)
         g = map (,1) . claim
 
-
 solve_1 :: UArray P Int -> Int
 solve_1 = length . filter (>1) . U.elems
 
