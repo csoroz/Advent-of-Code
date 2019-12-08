@@ -7,10 +7,10 @@ type Intcode = [Int]
 
 data Parameter = Pos Int | Imm Int deriving Show
 
-execute :: IOUArray Int Int -> [Int] -> Int -> IO Int
-execute a inputs i = uncurry go . decode =<< readArray a i
+execute :: IOUArray Int Int -> [Int] -> [Int] -> Int -> IO [Int]
+execute a inputs outputs i = uncurry go . decode =<< readArray a i
   where
-    go 99 = readArray a . const 0
+    go 99 = return . const (reverse outputs)
     go 1 = compute (+)
     go 2 = compute (*)
     go 3 = input
@@ -33,13 +33,13 @@ execute a inputs i = uncurry go . decode =<< readArray a i
     fetchParam m i = fetch =<< parameter m i
     addr m k = parameter (m!!(k-1)) (i+k)
     params m n = sequence $ zipWith fetchParam m [i+1..i+n]
-    next = execute a inputs
+    next = execute a inputs outputs
     input m = do
         write (head inputs) =<< addr m 1
-        execute a (tail inputs) (i+2)
+        execute a (tail inputs) outputs (i+2)
     output m = do
-        print . head =<< params m 1
-        next $ i+2
+        x <- head <$> params m 1
+        execute a inputs (x:outputs) (i+2)
     jump p m = do
         [x,y] <- params m 2
         next $ if p x 0 then y else i+3
@@ -52,10 +52,10 @@ execute a inputs i = uncurry go . decode =<< readArray a i
         write (op x y) =<< addr m 3
         next $ i+4
 
-diagnostic :: [Int] -> Intcode -> IO Int
+diagnostic :: [Int] -> Intcode -> IO [Int]
 diagnostic inputs code = do
     a <- newListArray (0, length code - 1) code :: IO (IOUArray Int Int)
-    execute a inputs 0
+    execute a inputs [] 0
 
 parse :: String -> Intcode
 parse = map read . splitOn ","
@@ -66,26 +66,29 @@ main = do code <- parse <$> getContents
 
 tests = do
     let t1 = [3,9,8,9,10,9,4,9,99,-1,8]
-    diagnostic [7] t1 -- 0
-    diagnostic [8] t1 -- 1
     let t2 = [3,9,7,9,10,9,4,9,99,-1,8]
-    diagnostic [7] t2 -- 1
-    diagnostic [8] t2 -- 0
     let t3 = [3,3,1108,-1,8,3,4,3,99]
-    diagnostic [7] t3 -- 0
-    diagnostic [8] t3 -- 1
     let t4 = [3,3,1107,-1,8,3,4,3,99]
-    diagnostic [7] t4 -- 1
-    diagnostic [8] t4 -- 0
     let t5 = [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]
-    diagnostic [0] t5 -- 0
-    diagnostic [8] t5 -- 1
     let t6 = [3,3,1105,-1,9,1101,0,0,12,4,12,99,1]
-    diagnostic [0] t6 -- 0
-    diagnostic [8] t6 -- 1
     let t7 = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
               1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
               999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99]
-    diagnostic [7] t7 -- 999
-    diagnostic [8] t7 -- 1000
-    diagnostic [9] t7 -- 1001
+    rs <- concat <$> sequence
+        [diagnostic [7] t1
+        ,diagnostic [8] t1
+        ,diagnostic [7] t2
+        ,diagnostic [8] t2
+        ,diagnostic [7] t3
+        ,diagnostic [8] t3
+        ,diagnostic [7] t4
+        ,diagnostic [8] t4
+        ,diagnostic [0] t5
+        ,diagnostic [8] t5
+        ,diagnostic [0] t6
+        ,diagnostic [8] t6
+        ,diagnostic [7] t7
+        ,diagnostic [8] t7
+        ,diagnostic [9] t7
+        ]
+    return $ rs == [0,1,1,0,0,1,1,0,0,1,0,1,999,1000,1001]
