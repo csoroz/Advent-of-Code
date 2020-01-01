@@ -1,14 +1,13 @@
 import Data.List.Split
 import Data.List
 import Data.Ord
+import Control.Arrow
 
 count :: Char -> String -> Int
 count x = length . filter (==x)
 
-pair (f,g) x = (f x, g x)
-
 check :: [String] -> Int
-check = uncurry (*) . pair (count '1', count '2')
+check = uncurry (*) . (count '1' &&& count '2')
       . fst . minimumBy (comparing snd) . map f
       where f xs = (xs, count '0' xs)
 
