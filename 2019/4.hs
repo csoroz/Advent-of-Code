@@ -1,5 +1,6 @@
 import Data.Digits
 import Data.List
+import Control.Arrow
 
 adjacent p ds = any (p.length) (group ds)
 nondecreasing ds = and $ zipWith (<=) ds (tail ds)
@@ -10,8 +11,6 @@ valid p = prop . digits 10
 
 count p = length . filter (valid p)
 
-pair (f,g) x = (f x, g x)
-
-solve = pair (count (>1), count (==2))
+solve = (count (>1) &&& count (==2))
 
 main = print $ solve [134564..585159]

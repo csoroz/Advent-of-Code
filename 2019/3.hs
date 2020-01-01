@@ -1,5 +1,6 @@
 import Data.Maybe
 import Data.List.Split
+import Control.Arrow
 
 data Segment = H Int (Int,Int) | V Int (Int,Int) deriving Show
 data Twist = L | R | U | D deriving Show
@@ -56,9 +57,7 @@ parse = map turn . splitOn ","
         twist 'U' = U
         twist 'D' = D
 
-pair (f,g) x = (f x, g x)
-
-main = print . pair (solve1,solve2) . map parse . lines =<< getContents
+main = print . (solve1 &&& solve2) . map parse . lines =<< getContents
 
 tests = [["R75,D30,R83,U83,L12,D49,R71,U7,L72"       
          ,"U62,R66,U55,R34,D71,R55,D58,R83"],

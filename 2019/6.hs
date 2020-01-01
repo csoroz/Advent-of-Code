@@ -2,6 +2,7 @@ import Data.List.Split
 import Data.Maybe
 import Data.Map (Map)
 import qualified Data.Map as M
+import Control.Arrow
 
 type T a = Map a [a]
 
@@ -54,7 +55,7 @@ parse :: [String] -> [(String,String)]
 parse = map (tuple . splitOn ")")
   where tuple [a,b] = (a,b)
 
-main = interact $ show . pair (orbits,transfers) . tree . parse . lines
+main = interact $ show . (orbits &&& transfers) . tree . parse . lines
 
 test = (test1,test2) == (42,4)
   where
