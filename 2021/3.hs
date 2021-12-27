@@ -4,11 +4,8 @@ import Data.List
 binary :: [Int] -> Integer
 binary = foldl (\a b -> 2*a + fromIntegral b) 0
 
-digit :: Char -> Int
-digit x = ord x - ord '0'
-
 digits :: String -> [Int]
-digits = map digit
+digits = map digitToInt
 
 neg :: Int -> Int
 neg x = 1 - x
@@ -24,7 +21,7 @@ select cmp (a,b) = if cmp a b then '0' else '1'
 power :: [String] -> Integer
 power = g  . map f . transpose
   where g xs = gamma xs * epsilon xs
-        f = digit . select (>) . most
+        f = digitToInt . select (>) . most
         epsilon = binary . map neg
         gamma   = binary
 
