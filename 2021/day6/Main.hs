@@ -23,5 +23,4 @@ solve = fork (count 80, count 256)
 fork (f,g) x = (f x, g x)
 
 main = interact $ show . solve . g . lines
-  where g = map f . splitOn "," . head
-        f x = read x :: Int
+  where g = map read . splitOn "," . head
