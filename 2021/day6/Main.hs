@@ -14,6 +14,7 @@ lantern n = V.unfoldr g 0
     children = (1+) . sum . map (v!)
       . takeWhile (<=n) . iterate (+7)
 
+count :: Int -> [Int] -> Integer
 count n = sum . map (a!)
   where a = lantern n
 
