@@ -17,8 +17,10 @@ lantern n = V.unfoldr g 0
 count n = sum . map (a!)
   where a = lantern n
 
+solve = fork (count 80, count 256)
+
 fork (f,g) x = (f x, g x)
 
-main = interact $ show . fork (count 80, count 256) . g . lines
+main = interact $ show . solve . g . lines
   where g = map f . splitOn "," . head
         f x = read x :: Int
