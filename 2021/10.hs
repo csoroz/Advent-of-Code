@@ -11,22 +11,26 @@ expr = const () <$> many chunk
                      <|> p '{' '}'
                      <|> p '<' '>'
 
-validate = parse expr ""
+remain :: Parsec s u a -> Parsec s u (a,s)
+remain p = do a <- p; s <- getInput; return (a,s)
+
+validate = parse (remain expr) ""
 
 scoreSyntax :: String -> Int
-scoreSyntax a = score $ validate a
+scoreSyntax s = score $ validate s
   where
-    n = length a
+    n = length s
     score = \case
-      Right () -> 0
-      Left e -> if i>n then 0 else points (a!!(i-1))
+      Right ((),[]) -> 0
+      Right ((),x:_) -> points x
+      Left e -> if i>n then 0 else points (s!!(i-1))
         where i = sourceColumn $ errorPos e
-              points = \case
-                ')' -> 3
-                ']' -> 57
-                '}' -> 1197
-                '>' -> 25137
-                _   -> 0
+    points = \case
+        ')' -> 3
+        ']' -> 57
+        '}' -> 1197
+        '>' -> 25137
+        _   -> 0
 
 scoreAuto :: String -> Integer
 scoreAuto = score . autocomplete
