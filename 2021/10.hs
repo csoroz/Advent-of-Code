@@ -3,34 +3,31 @@ import Text.Parsec
 import Data.List
 
 expr :: Parsec String () ()
-expr = const () <$> many chunk
+expr = const () <$> chunks <* eof
   where
-    p a b = const () <$> between (char a) (char b) expr
-    chunk = const () <$> p '(' ')'
-                     <|> p '[' ']'
-                     <|> p '{' '}'
-                     <|> p '<' '>'
+    chunks = many chunk
+    p a b = const () <$> between (char a) (char b) chunks
+    chunk = p '(' ')'
+        <|> p '[' ']'
+        <|> p '{' '}'
+        <|> p '<' '>'
 
-remain :: Parsec s u a -> Parsec s u (a,s)
-remain p = do a <- p; s <- getInput; return (a,s)
-
-validate = parse (remain expr) ""
+validate = parse expr ""
 
 scoreSyntax :: String -> Int
 scoreSyntax s = score $ validate s
   where
     n = length s
     score = \case
-      Right ((),[]) -> 0
-      Right ((),x:_) -> points x
+      Right () -> 0
       Left e -> if i>n then 0 else points (s!!(i-1))
         where i = sourceColumn $ errorPos e
-    points = \case
-        ')' -> 3
-        ']' -> 57
-        '}' -> 1197
-        '>' -> 25137
-        _   -> 0
+              points = \case
+                ')' -> 3
+                ']' -> 57
+                '}' -> 1197
+                '>' -> 25137
+                _   -> 0
 
 scoreAuto :: String -> Integer
 scoreAuto = score . autocomplete
