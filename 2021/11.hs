@@ -51,8 +51,9 @@ count n = length . concat . map snd . take n . tail . simulate
 
 sync :: Grid Int -> Int
 sync a = fst $ head $ dropWhile p $ zip [0..] (simulate a)
-  where p = (zs/=) . map (const ()) . snd . snd
-        zs = map (const ()) $ elems a
+  where p = (zs/=) . z . snd . snd
+        z = map (const ())
+        zs = z (elems a)
 
 parse :: [String] -> Grid Int
 parse ls = listArray ((1,1),nm) (map digitToInt $ concat ls)
