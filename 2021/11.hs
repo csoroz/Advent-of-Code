@@ -1,4 +1,4 @@
-import Data.Array
+import Data.Array.Unboxed
 import Data.Char
 
 type Point = (Int,Int)
