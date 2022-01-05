@@ -13,12 +13,11 @@ fuel :: Int -> [Int] -> Int
 fuel m = sum . map (f.abs.(m-))
   where f n = (n+1)*n `div` 2
 
-mean :: [Int] -> Double
-mean xs = fromIntegral (sum xs) / fromIntegral n
-  where n = length xs
+mean :: [Int] -> Int
+mean xs = sum xs `div` length xs
 
 crabs :: [Int] -> Int
-crabs xs = uncurry min $ both (flip fuel xs) (floor m, ceiling m)
+crabs xs = uncurry min $ both (flip fuel xs) (m, m+1)
   where m = mean xs
 
 both f (a,b) = (f a, f b)
