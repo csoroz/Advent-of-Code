@@ -7,6 +7,7 @@ executable Caves
     build-depends:
       base ^>=4.14.3.0,
       split ^>=0.2.3.4,
-      extra ^>= 1.7.10
+      extra ^>= 1.7.10,
+      containers ^>= 0.6.5.1
     hs-source-dirs: .
     main-is: Main.hs
