@@ -11,8 +11,7 @@ lantern n = V.unfoldr g 0
     f k = Just (children (k+9), k+1)
     g 9 = Nothing
     g k = Just (children (k+1), k+1) 
-    children = (1+) . sum . map (v!)
-      . takeWhile (<=n) . iterate (+7)
+    children = (1+) . sum . map (v!) . takeWhile (<=n) . iterate (+7)
 
 count :: Int -> [Int] -> Integer
 count n = sum . map (a!)
