@@ -5,7 +5,7 @@ import Data.List.Split
 lantern :: Int -> Vector Integer
 lantern n = V.unfoldr g 0
   where
-    v = V.cons 0 $ V.unfoldr f 1
+    v = V.unfoldr f 0
     f k | k > n = Nothing
     f k | k+9 > n = Just (1, k+1)
     f k = Just (children (k+9), k+1)
